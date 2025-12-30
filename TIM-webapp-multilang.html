@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title id="pageTitle">T.I.M — Tinnitus Is Manageable</title>
+  <meta name="description" content="T.I.M — a simple refocus button to support tinnitus habituation. Offline, private, and lightweight." />
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#121826; --text:#e8eef7; --muted:#9fb0c7;
+      --accent:#e11d48; --accent2:#be123c; --good:#22c55e; --line:rgba(255,255,255,.09);
+    }
+    *{ box-sizing:border-box; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; }
+    body{
+      margin:0; color:var(--text);
+      background: radial-gradient(1200px 800px at 50% -10%, #1b2a46 0%, var(--bg) 55%);
+      min-height:100vh; display:flex; align-items:center; justify-content:center; padding:18px;
+    }
+    .wrap{ width:min(1020px, 100%); display:grid; gap:16px; grid-template-columns: 1.15fr 0.85fr; }
+    @media (max-width: 920px){ .wrap{ grid-template-columns:1fr; } }
+    .card{
+      background:rgba(18,24,38,.92); border:1px solid var(--line);
+      border-radius:18px; padding:18px; box-shadow: 0 12px 40px rgba(0,0,0,.35);
+    }
+    h1{ margin:0 0 6px; font-size:22px; letter-spacing:.2px; }
+    .sub{ margin:0 0 14px; color:var(--muted); font-size:14px; line-height:1.4; }
+    .titleRow{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .tag{ padding:6px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted); font-size:12px; }
+    .button{
+      width:100%; aspect-ratio: 2.0/1; border-radius:26px; border:0; cursor:pointer;
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent2) 100%);
+      box-shadow: 0 12px 0 rgba(0,0,0,.25), 0 28px 60px rgba(225,29,72,.20);
+      color:white; font-size:28px; font-weight:850; letter-spacing:.4px;
+      display:flex; align-items:center; justify-content:center; gap:10px; user-select:none;
+    }
+    .button:active{ transform: translateY(6px); box-shadow: 0 6px 0 rgba(0,0,0,.25), 0 16px 40px rgba(225,29,72,.15); }
+    .prompt{
+      margin-top:14px; padding:14px; border-radius:14px;
+      background: rgba(255,255,255,.06); border:1px solid var(--line);
+      min-height:92px; display:flex; align-items:center;
+      font-size:18px; line-height:1.35;
+    }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
+    .pill{
+      padding:8px 10px; border-radius:999px; background: rgba(255,255,255,.06);
+      border:1px solid var(--line); color:var(--muted); font-size:13px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .toggle{ display:flex; gap:8px; align-items:center; cursor:pointer; user-select:none; }
+    input[type="checkbox"]{ width:18px; height:18px; }
+    .smallbtn{
+      border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06);
+      color:var(--text); padding:9px 12px; border-radius:12px; cursor:pointer; font-weight:700;
+    }
+    .smallbtn:hover{ background: rgba(255,255,255,.09); }
+    .kpi{ display:grid; gap:10px; grid-template-columns:1fr 1fr; }
+    .box{ padding:12px; border-radius:14px; background: rgba(255,255,255,.06); border:1px solid var(--line); }
+    .num{ font-size:22px; font-weight:900; margin:0; }
+    .lbl{ margin:2px 0 0; color:var(--muted); font-size:12px; line-height:1.2; }
+    .hint{ margin-top:12px; color:var(--muted); font-size:13px; line-height:1.45; }
+    .ok{ color:var(--good); font-weight:800; }
+    .footer{ margin-top:10px; color:var(--muted); font-size:12px; line-height:1.35; }
+    .sparkWrap{ margin-top:10px; padding:10px; border-radius:14px; background: rgba(255,255,255,.04); border:1px dashed rgba(255,255,255,.14); }
+    .sparkHdr{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .warn{ color:#fb7185; font-weight:750; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card">
+      <div class="titleRow">
+        <div>
+          <h1 id="appName">T.I.M</h1>
+          <p id="headline" class="sub"><span id="headlineStrong" class="ok">Tinnitus Is Manageable.</span> <span id="headlineRest">Press when you notice yourself reacting. Do the prompt, then carry on.</span></p>
+        </div>
+        <div id="tagline" class="tag">Private • Offline • No accounts</div>
+      </div>
+
+      <button id="bigButton" class="button" aria-label="Tap T.I.M">
+        <span id="tapLabel">🔴 Tap T.I.M</span>
+      </button>
+
+      <div id="prompt" class="prompt">
+        <span id="readyText">Ready. Tap when you notice a reaction (not every tiny moment).</span>
+      </div>
+
+      <div class="row">
+        <label class="toggle pill" title="Speak the prompt out loud (may require a tap once first on mobile).">
+          <input id="voiceToggle" type="checkbox" />
+          🔊 Voice
+        </label>
+
+        <label class="toggle pill" title="A little more playful prompts (often helps reduce threat).">
+          <input id="playfulToggle" type="checkbox" checked />
+          🙂 Playful
+        </label>
+
+        
+        <label class="pill" style="display:flex;align-items:center;gap:8px" title="Language">
+          🌍 <span id="langLabel" style="color:var(--muted);font-size:13px;">Language</span>
+          <select id="langSelect" aria-label="Language" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--text);border-radius:10px;padding:7px 8px;outline:none;">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="es">Español</option>
+            <option value="it">Italiano</option>
+          </select>
+        </label>
+
+        <button id="newPrompt" class="smallbtn" type="button"><span id="newPromptLabel">New prompt</span></button>
+        <button id="resetToday" class="smallbtn" type="button" title="Clears today's count only."><span id="resetTodayLabel">Reset today</span></button>
+        <button id="clearAll" class="smallbtn" type="button" title="Clears all stored data on this device."><span id="clearAllLabel">Clear all</span></button>
+      </div>
+
+      <p class="hint">
+        <span id="hintLine1">This is meant to support habituation — not create more monitoring.</span>
+        <span id="hintLine2">Best practice: use it when you notice a <span class="warn">spiral / annoyance</span>, then return to life.</span>
+      </p>
+
+      <div class="footer">
+        <span id="footerLine">Data stays on this device using <span class="mono">localStorage</span>. Nothing is uploaded anywhere.</span>
+      </div>
+    </section>
+
+    <aside class="card">
+      <h1 id="progressTitle">Progress</h1>
+      <p id="progressSub" class="sub">Gentle stats. Try not to stare at them all day.</p>
+
+      <div class="kpi">
+        <div class="box">
+          <p id="todayNum" class="num">0</p>
+          <p id="lblToday" class="lbl">Taps today</p>
+        </div>
+        <div class="box">
+          <p id="avg30Num" class="num">0</p>
+          <p id="lblAvg" class="lbl">Average taps (last 30 days)</p>
+        </div>
+        <div class="box">
+          <p id="daysUsedNum" class="num">0</p>
+          <p id="lblDays" class="lbl">Days used (last 30 days)</p>
+        </div>
+        <div class="box">
+          <p id="bestGapNum" class="num">—</p>
+          <p id="lblGap" class="lbl">Longest “no tap” gap today</p>
+        </div>
+      </div>
+
+      <div class="sparkWrap">
+        <div class="sparkHdr">
+          <div id="sparkHdrLabel" class="sub" style="margin:0">Last 30 days (taps/day)</div>
+          <div id="trendTxt" class="tag mono">trend: —</div>
+        </div>
+        <svg id="spark" viewBox="0 0 300 80" width="100%" height="80" aria-label="Last 30 days sparkline">
+          <path id="sparkPath" d="" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" />
+          <path id="sparkBase" d="M0 79 H300" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1" />
+        </svg>
+        <div class="hint" style="margin-top:8px">
+          <span id="sparkHint">Progress usually looks like: fewer “urgent” taps, longer gaps, and less time thinking about it — even if the sound itself varies.</span>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span id="progressFooter">If you want a daily “one look” routine: check stats once in the evening, not during the day.</span>
+      </div>
+    </aside>
+  </div>
+
+
+<script>
+/* T.I.M — multi-language version (offline + localStorage)
+   Languages: EN, FR, DE, ES, IT
+*/
+const I18N = {"en": {"ui": {"pageTitle": "T.I.M — Tinnitus Is Manageable", "headlineStrong": "Tinnitus Is Manageable.", "headlineRest": "Press when you notice yourself reacting. Do the prompt, then carry on.", "tagline": "Private • Offline • No accounts", "tapLabel": "🔴 Tap T.I.M", "readyText": "Ready. Tap when you notice a reaction (not every tiny moment).", "voice": "🔊 Voice", "playful": "🙂 Playful", "newPrompt": "New prompt", "resetToday": "Reset today", "clearAll": "Clear all", "hint1": "This is meant to support habituation — not create more monitoring.", "hint2": "Best practice: use it when you notice a <span class=\"warn\">spiral / annoyance</span>, then return to life.", "footer": "Data stays on this device using <span class=\"mono\">localStorage</span>. Nothing is uploaded anywhere.", "progressTitle": "Progress", "progressSub": "Gentle stats. Try not to stare at them all day.", "lblToday": "Taps today", "lblAvg": "Average taps (last 30 days)", "lblDays": "Days used (last 30 days)", "lblGap": "Longest “no tap” gap today", "sparkHdr": "Last 30 days (taps/day)", "sparkHint": "Progress usually looks like: fewer “urgent” taps, longer gaps, and less time thinking about it — even if the sound itself varies.", "progressFooter": "If you want a daily “one look” routine: check stats once in the evening, not during the day.", "language": "Language"}, "prompts": {"core": ["Take one slow breath in… and out… (just once).", "Notice 3 things you can see. Name them quietly.", "Feel your feet. Press toes into the floor for 3 seconds.", "Count backwards from 20 to 12. Stop.", "Name 5 animals. Done.", "Name 4 foods. Done.", "Name 3 places you’ve been. Done.", "Scan your shoulders. Drop them 1cm.", "Unclench your jaw. Tiny reset.", "Look for something rectangular. Find 2.", "Look for something round. Find 1.", "Pick a colour. Spot 3 of it in the room.", "Imagine drawing a perfect circle in the air — slowly.", "Picture a bicycle wheel turning exactly 5 times. Count each rotation.", "Tap your thumb to each finger once. (1–2–3–4).", "Count 7 sounds around you (not the tinnitus).", "Describe the room like you’re narrating a documentary (one sentence).", "Choose a task you’re already doing and do the next 30 seconds only.", "Relax your forehead. Smooth it like you’re ironing a tiny shirt.", "Stretch your fingers wide… then relax.", "Name 2 things you’re grateful for today (small counts).", "Imagine a volume knob. Turn it down 10%… then walk away.", "Write (or think) one neutral sentence: “This is a sound, not a threat.”", "Pick an object. Notice its texture for 5 seconds.", "Take a sip of water. Focus on the temperature.", "Count 10 blinks. Yes, really.", "Think of a song chorus (just 2 lines) and play it once in your head.", "Visualise opening a door. What’s behind it? One sentence.", "Pick a category (games, films, books). Name 5 quickly, then stop.", "Do a micro tidy: move one item to where it belongs.", "Send a kind text to someone (or draft it).", "Stand up. Sit down. That’s it.", "Look outside (or at a window). Find the farthest thing you can see.", "Set a 60‑second timer and do nothing but your current activity.", "Smile slightly (fake is fine). Let your brain get the memo."], "playful": ["Imagine a tiny dragon doing 3 push-ups. Count them. 💪🐉", "Picture a duck wearing a tiny hat. What colour is the hat?", "Visualise a cat sneaking past… but it’s wearing squeaky shoes.", "Imagine a goblin making tea. Which mug does it choose?", "Pretend you’re a game master: describe this room as a dungeon tile.", "Your mission: locate the nearest ‘treasure’ (a pen). Do it.", "Imagine a wizard casting ‘Mild Calm’. The spell sparkles politely.", "Picture a knight arguing with a door. The door wins. Move on.", "Think of a polite orc saying “excuse me” and opening a jar.", "Imagine a squirrel doing taxes. It’s stressed. You don’t have to be.", "Summon a mental soundtrack: ‘Epic… but for doing laundry’.", "Imagine your tinnitus as a tiny radio in another room. Leave it there.", "Design a monster name: ‘Sir Flaps-a-Lot’. Done.", "Picture a dragon doing yoga. It is surprisingly flexible.", "Imagine a gnome DM (Fred) saying: “Roll for chill.” You pass.", "Visualise a snail with a jetpack. It is still a snail.", "Imagine your brain filing ‘tinnitus’ into the ‘boring’ folder. *click*", "Create a made-up spell: ‘Ignore-ius Maximus’. Cast it.", "Picture a penguin explaining Bluetooth. Confidently wrong.", "Imagine a hamster holding a tiny microphone: “Next question!”", "Invent a new board game: ‘Carpet: The Reckoning’ (one sentence).", "Imagine a cactus giving a hug. It regrets it immediately.", "Picture a dragon doing push-ups again. It’s committed now.", "Imagine a gremlin polishing armour. It is doing its best.", "Think of a theme park ride called ‘The Mild Distraction’. Enjoy it.", "Picture a wizard’s staff… but it’s actually a baguette.", "Imagine a tiny bard singing: “la la la, not today.”", "Visualise a frog in a cape. It believes in you.", "Imagine a robot learning to wink. It’s… unsettling.", "Picture a goblin writing a motivational poster: ‘Keep Calm-ish’.", "Imagine your thoughts as popcorn. Let one pop… then stop.", "Visualise a dragon doing one last push-up and retiring happily."], "follow": ["Nice. Now carry on without checking again.", "Good. Back to what you were doing.", "Done. Let it be there and continue.", "Great — attention outward again.", "Return to your activity."]}, "ttsLang": "en-GB"}, "fr": {"ui": {"pageTitle": "T.I.M — Les acouphènes sont gérables", "headlineStrong": "Les acouphènes sont gérables.", "headlineRest": "Appuie quand tu remarques une réaction. Fais l’exercice, puis continue.", "tagline": "Privé • Hors‑ligne • Sans compte", "tapLabel": "🔴 Appuie sur T.I.M", "readyText": "Prêt. Appuie quand tu remarques une réaction (pas à chaque micro‑moment).", "voice": "🔊 Voix", "playful": "🙂 Déjanté", "newPrompt": "Nouveau", "resetToday": "Réinitialiser aujourd’hui", "clearAll": "Tout effacer", "hint1": "Le but est d’aider l’habituation — pas de surveiller davantage.", "hint2": "Conseil : utilise‑le quand tu sens une <span class=\"warn\">spirale / irritation</span>, puis reviens à ta vie.", "footer": "Les données restent sur cet appareil via <span class=\"mono\">localStorage</span>. Rien n’est envoyé.", "progressTitle": "Progrès", "progressSub": "Stats douces. Évite de les regarder toute la journée.", "lblToday": "Appuis aujourd’hui", "lblAvg": "Moyenne (30 derniers jours)", "lblDays": "Jours utilisés (30 jours)", "lblGap": "Plus longue pause sans appui aujourd’hui", "sparkHdr": "30 derniers jours (appuis/jour)", "sparkHint": "Le progrès ressemble souvent à : moins d’appuis “urgents”, des pauses plus longues, et moins de temps à y penser — même si le son varie.", "progressFooter": "Routine “un seul coup d’œil” : regarde les stats une fois le soir, pas en journée.", "language": "Langue"}, "prompts": {"core": ["Une respiration lente… inspire… expire… (une seule).", "Regarde 3 choses. Nomme‑les.", "Sens tes pieds. Pousse les orteils 3 secondes.", "Compte à rebours de 20 à 12. Stop.", "Nomme 5 animaux. Terminé.", "Nomme 4 aliments. Terminé.", "Nomme 3 lieux où tu es allé. Terminé.", "Baisse les épaules d’1 cm.", "Desserre la mâchoire. Mini reset.", "Trouve 2 choses rectangulaires.", "Trouve 1 chose ronde.", "Choisis une couleur. Repère‑en 3.", "Dessine un cercle parfait dans l’air — lentement.", "Imagine une roue de vélo qui tourne 5 fois. Compte.", "Touche pouce‑index‑majeur‑annulaire (1–2–3–4).", "Compte 7 sons autour de toi (pas l’acouphène).", "Décris la pièce comme un documentaire (une phrase).", "Fais seulement les 30 prochaines secondes de ton activité.", "Détends le front. Comme si tu repassais une mini chemise.", "Écarte les doigts… puis relâche.", "Deux petites gratitudes. Ça compte.", "Imagine un bouton de volume. -10%… puis pars.", "Phrase neutre : « C’est un son, pas une menace. »", "Choisis un objet. Sens sa texture 5 secondes.", "Bois une gorgée d’eau. Sens la température.", "Compte 10 clignements. Oui.", "Chante un refrain (2 lignes) dans ta tête, une fois.", "Ouvre une porte imaginaire. Qu’y a‑t‑il derrière ? Une phrase.", "Catégorie (jeux/films/livres) : 5 noms, puis stop.", "Micro‑rangement : replace un objet.", "Envoie un message gentil (ou écris‑le).", "Lève‑toi. Assieds‑toi. C’est tout.", "Regarde au loin (fenêtre). Trouve la chose la plus lointaine.", "Minuteur 60 s : reviens juste à ton activité.", "Petit sourire (même faux)."], "playful": ["Imagine un mini dragon qui fait 3 pompes. Compte. 💪🐉", "Un canard avec un chapeau. Quelle couleur ?", "Un chat furtif… avec des chaussures qui couinent.", "Un gobelin fait du thé. Quel mug choisit‑il ?", "Mode MJ : décris la pièce comme une tuile de donjon.", "Mission : trouve un ‘trésor’ (un stylo). Go.", "Un mage lance « Calme Léger ». Ça scintille poliment.", "Un chevalier dispute avec une porte. La porte gagne. On avance.", "Un orc poli dit : « excusez‑moi » et ouvre un bocal.", "Un écureuil fait ses impôts. Il stresse. Pas toi.", "Musique épique… pour plier du linge.", "Ton acouphène = une petite radio dans une autre pièce. Laisse‑la.", "Nom de monstre : « Sir Flap‑a‑Lot ». Fin.", "Un dragon fait du yoga. Très souple.", "Fred le gnome dit : « Lance pour chill ». Tu réussis.", "Un escargot avec un jetpack. Toujours escargot.", "Ton cerveau classe ‘acouphènes’ dans ‘ennuyeux’. *clic*", "Sort inventé : « Ignore‑ius Maximus ». Lance‑le.", "Un pingouin explique le Bluetooth. Très sûr. Faux.", "Un hamster au micro : « Question suivante ! »", "Nouveau jeu : « Tapis : La Revanche » (une phrase).", "Un cactus fait un câlin. Il regrette.", "Le dragon refait des pompes. Il est motivé.", "Un gremlin polit une armure. Il fait de son mieux.", "Attraction : « La Distraction Douce ». Profite.", "Baguette magique… littéralement une baguette.", "Un mini barde chante : « pas aujourd’hui ». ", "Une grenouille en cape. Elle croit en toi.", "Un robot apprend à faire un clin d’œil. Bizarre.", "Un gobelin écrit : « Reste calm-ish ». ", "Tes pensées = popcorn. Une pop… puis stop.", "Un dernier push-up du dragon, puis retraite heureuse."], "follow": ["Bien. Maintenant, continue sans re‑checker.", "Parfait. Retour à ce que tu faisais.", "Fini. Laisse‑le là et avance.", "Très bien — attention vers l’extérieur.", "Reviens à ton activité."]}, "ttsLang": "fr-FR"}, "de": {"ui": {"pageTitle": "T.I.M — Tinnitus ist machbar", "headlineStrong": "Tinnitus ist machbar.", "headlineRest": "Drück, wenn du merkst, dass du reagierst. Mach den Impuls, dann weiter.", "tagline": "Privat • Offline • Keine Konten", "tapLabel": "🔴 T.I.M drücken", "readyText": "Bereit. Drück, wenn du eine Reaktion bemerkst (nicht bei jedem Mini‑Moment).", "voice": "🔊 Stimme", "playful": "🙂 Albern", "newPrompt": "Neu", "resetToday": "Heute zurücksetzen", "clearAll": "Alles löschen", "hint1": "Das soll Habituation unterstützen — nicht mehr Überwachung.", "hint2": "Tipp: Nutze es bei <span class=\"warn\">Spirale / Genervtsein</span>, dann zurück ins Leben.", "footer": "Daten bleiben auf diesem Gerät via <span class=\"mono\">localStorage</span>. Nichts wird hochgeladen.", "progressTitle": "Fortschritt", "progressSub": "Sanfte Stats. Nicht den ganzen Tag anstarren.", "lblToday": "Taps heute", "lblAvg": "Durchschnitt (letzte 30 Tage)", "lblDays": "Tage genutzt (30 Tage)", "lblGap": "Längste „kein Tap“-Pause heute", "sparkHdr": "Letzte 30 Tage (Taps/Tag)", "sparkHint": "Fortschritt sieht oft so aus: weniger „dringende“ Taps, längere Pausen, weniger Zeit daran zu denken — auch wenn der Ton schwankt.", "progressFooter": "„Ein Blick am Tag“: Stats abends einmal checken, nicht tagsüber.", "language": "Sprache"}, "prompts": {"core": ["Einmal langsam einatmen… ausatmen… (nur einmal).", "Sieh 3 Dinge. Benenne sie.", "Spür deine Füße. Zehen 3 Sekunden in den Boden drücken.", "Rückwärts zählen von 20 bis 12. Stopp.", "Nenne 5 Tiere. Fertig.", "Nenne 4 Essen. Fertig.", "Nenne 3 Orte, an denen du warst. Fertig.", "Schultern scannen. 1 cm fallen lassen.", "Kiefer lösen. Mini‑Reset.", "Finde 2 rechteckige Dinge.", "Finde 1 rundes Ding.", "Wähle eine Farbe. Entdecke 3 davon.", "Male einen perfekten Kreis in die Luft — langsam.", "Stell dir ein Fahrrad‑Rad vor: 5 Umdrehungen. Zählen.", "Daumen zu jedem Finger tippen (1–2–3–4).", "Zähle 7 Geräusche um dich herum (nicht das Tinnitus‑Geräusch).", "Beschreibe den Raum wie eine Doku (1 Satz).", "Mach nur die nächsten 30 Sekunden deiner aktuellen Aufgabe.", "Stirn entspannen. Als würdest du ein Mini‑Hemd bügeln.", "Finger spreizen… dann lösen.", "Nenne 2 kleine Dinge, für die du dankbar bist.", "Stell dir einen Lautstärke‑Regler vor. -10%… und weggehen.", "Neutraler Satz: „Das ist ein Geräusch, keine Gefahr.“", "Objekt wählen. Textur 5 Sekunden spüren.", "Einen Schluck Wasser. Temperatur merken.", "10 Blinzler zählen. Ja.", "Refrain (2 Zeilen) einmal im Kopf abspielen.", "Tür im Kopf öffnen. Was dahinter? 1 Satz.", "Kategorie (Spiele/Filme/Bücher): 5 Namen, dann Stopp.", "Mini‑Aufräumen: Leg 1 Ding weg.", "Schicke eine nette Nachricht (oder entwirf sie).", "Aufstehen. Hinsetzen. Fertig.", "Raus schauen (Fenster). Finde das entfernteste Ding.", "60‑Sekunden‑Timer: nur deine Aufgabe.", "Leicht lächeln (fake ok)."], "playful": ["Stell dir einen Mini‑Drachen vor, der 3 Liegestütze macht. Zähl. 💪🐉", "Eine Ente mit Mini‑Hut. Welche Farbe?", "Eine Katze schleicht vorbei… in quietschenden Schuhen.", "Ein Goblin macht Tee. Welche Tasse nimmt er?", "Game‑Master‑Modus: Beschreibe den Raum als Dungeon‑Tile.", "Mission: Finde den nächsten „Schatz“ (einen Stift). Los.", "Ein Zauberer wirkt „Milde Ruhe“. Funkelt höflich.", "Ein Ritter streitet mit einer Tür. Die Tür gewinnt. Weiter.", "Ein höflicher Ork sagt „entschuldigung“ und öffnet ein Glas.", "Ein Eichhörnchen macht Steuern. Es stresst. Du nicht.", "Epische Musik… fürs Wäsche‑Falten.", "Tinnitus = kleines Radio im Nebenraum. Lass es dort.", "Monstername: „Sir Flap‑a‑Lot“. Fertig.", "Ein Drache macht Yoga. Überraschend beweglich.", "Der Gnom‑DM sagt: „Würfel auf Chill.“ Du schaffst es.", "Eine Schnecke mit Jetpack. Immer noch Schnecke.", "Gehirn sortiert ‚Tinnitus‘ in den Ordner ‚langweilig‘. *klick*", "Neuer Zauber: „Ignorier‑ius Maximus“. Wirken.", "Ein Pinguin erklärt Bluetooth. Sehr sicher. Falsch.", "Ein Hamster am Mikro: „Nächste Frage!“", "Neues Brettspiel: „Teppich: Die Abrechnung“ (1 Satz).", "Ein Kaktus umarmt. Bereut sofort.", "Der Drache macht nochmal Liegestütze. Verpflichtet jetzt.", "Ein Gremlin poliert Rüstung. Er bemüht sich.", "Fahrgeschäft: „Die Milde Ablenkung“. Genieß es.", "Zauberstab… ist eigentlich ein Baguette.", "Mini‑Barde singt: „nicht heute“. ", "Ein Frosch mit Umhang. Er glaubt an dich.", "Ein Roboter lernt zwinkern. Unheimlich.", "Goblin schreibt Poster: „Keep Calm‑ish“. ", "Gedanken wie Popcorn: ein Pop… dann Stopp.", "Letzter Liegestütz vom Drachen, dann Ruhestand."], "follow": ["Top. Jetzt weiter ohne nochmal zu checken.", "Gut. Zurück zu dem, was du getan hast.", "Erledigt. Lassen und weitergehen.", "Sehr gut — Aufmerksamkeit nach außen.", "Zurück zur Aktivität."]}, "ttsLang": "de-DE"}, "es": {"ui": {"pageTitle": "T.I.M — El tinnitus es manejable", "headlineStrong": "El tinnitus es manejable.", "headlineRest": "Pulsa cuando notes que reaccionas. Haz el ejercicio y sigue.", "tagline": "Privado • Sin conexión • Sin cuentas", "tapLabel": "🔴 Pulsa T.I.M", "readyText": "Listo. Pulsa cuando notes una reacción (no en cada micro‑momento).", "voice": "🔊 Voz", "playful": "🙂 Travieso", "newPrompt": "Nuevo", "resetToday": "Reiniciar hoy", "clearAll": "Borrar todo", "hint1": "Esto ayuda a la habituación — no a vigilar más.", "hint2": "Consejo: úsalo cuando notes una <span class=\"warn\">espiral / molestia</span>, y vuelve a tu vida.", "footer": "Los datos se quedan en este dispositivo con <span class=\"mono\">localStorage</span>. No se sube nada.", "progressTitle": "Progreso", "progressSub": "Estadísticas suaves. No las mires todo el día.", "lblToday": "Pulsaciones hoy", "lblAvg": "Promedio (últimos 30 días)", "lblDays": "Días usado (30 días)", "lblGap": "Mayor pausa sin pulsar hoy", "sparkHdr": "Últimos 30 días (puls./día)", "sparkHint": "El progreso suele verse así: menos pulsaciones “urgentes”, pausas más largas y menos tiempo pensando en ello — aunque el sonido varíe.", "progressFooter": "Rutina de “una mirada”: mira las stats una vez por la noche, no durante el día.", "language": "Idioma"}, "prompts": {"core": ["Una respiración lenta… inhala… exhala… (solo una).", "Mira 3 cosas. Nómbralas.", "Siente los pies. Presiona los dedos 3 segundos.", "Cuenta hacia atrás de 20 a 12. Para.", "Nombra 5 animales. Hecho.", "Nombra 4 comidas. Hecho.", "Nombra 3 lugares donde has estado. Hecho.", "Escanea hombros. Bájalos 1 cm.", "Relaja la mandíbula. Mini reinicio.", "Encuentra 2 cosas rectangulares.", "Encuentra 1 cosa redonda.", "Elige un color. Localiza 3.", "Dibuja un círculo perfecto en el aire — despacio.", "Imagina una rueda de bici girando 5 veces. Cuenta.", "Pulgar a cada dedo una vez (1–2–3–4).", "Cuenta 7 sonidos alrededor (no el tinnitus).", "Describe la habitación como documental (1 frase).", "Haz solo los próximos 30 segundos de tu actividad.", "Relaja la frente. Como planchar una mini camisa.", "Estira los dedos… y suelta.", "Piensa en 2 gratitudes pequeñas.", "Imagina un mando de volumen. -10%… y aléjate.", "Frase neutral: «Es un sonido, no una amenaza».", "Elige un objeto. Nota su textura 5 segundos.", "Bebe un sorbo de agua. Nota la temperatura.", "Cuenta 10 parpadeos. Sí.", "Tararea un estribillo (2 líneas) una vez.", "Abre una puerta imaginaria. ¿Qué hay? 1 frase.", "Categoría (juegos/pelis/libros): 5 nombres y stop.", "Micro‑orden: coloca 1 cosa en su sitio.", "Envía un mensaje amable (o bórrador).", "Levántate. Siéntate. Ya.", "Mira lejos (ventana). Encuentra lo más lejano.", "Temporizador 60 s: solo tu tarea.", "Sonríe un poco (falso vale)."], "playful": ["Imagina un mini dragón haciendo 3 flexiones. Cuenta. 💪🐉", "Un pato con sombrerito. ¿De qué color?", "Un gato sigiloso… con zapatos que chirrían.", "Un duende prepara té. ¿Qué taza elige?", "Modo máster: describe la sala como loseta de mazmorra.", "Misión: encuentra un ‘tesoro’ (un boli).", "Un mago lanza «Calma Suave». Brilla educadamente.", "Un caballero discute con una puerta. La puerta gana. Sigue.", "Un orco educado dice “perdón” y abre un frasco.", "Una ardilla hace impuestos. Se estresa. Tú no.", "Música épica… para doblar ropa.", "El tinnitus = una radio en otra habitación. Déjala allí.", "Nombre de monstruo: «Sir Aletea‑Mucho». Hecho.", "Un dragón hace yoga. Sorprendentemente flexible.", "El gnomo DM dice: «Tira para chill». Aprobado.", "Un caracol con jetpack. Sigue siendo caracol.", "Tu cerebro archiva ‘tinnitus’ en ‘aburrido’. *clic*", "Hechizo inventado: «Ignora‑ius Máximus».", "Un pingüino explica Bluetooth. Muy seguro. Mal.", "Un hámster al micro: «¡Siguiente pregunta!»", "Nuevo juego: «Alfombra: El Ajuste de Cuentas» (1 frase).", "Un cactus da un abrazo. Se arrepiente.", "El dragón hace otra flexión. Comprometido.", "Un gremlin pule armadura. Hace lo que puede.", "Atracción: «La Distracción Suave». Disfruta.", "Varita mágica… es una baguette.", "Un mini bardo canta: “hoy no”.", "Una rana con capa. Cree en ti.", "Un robot aprende a guiñar. Inquietante.", "Un duende escribe póster: “Keep Calm‑ish”.", "Pensamientos como palomitas: pop… y stop.", "Última flexión del dragón y se jubila feliz."], "follow": ["Bien. Ahora sigue sin comprobar.", "Genial. Vuelve a lo que hacías.", "Listo. Déjalo estar y continúa.", "Perfecto — atención hacia fuera.", "Vuelve a tu actividad."]}, "ttsLang": "es-ES"}, "it": {"ui": {"pageTitle": "T.I.M — L’acufene è gestibile", "headlineStrong": "L’acufene è gestibile.", "headlineRest": "Premi quando noti una reazione. Fai il prompt e poi continua.", "tagline": "Privato • Offline • Nessun account", "tapLabel": "🔴 Premi T.I.M", "readyText": "Pronto. Premi quando noti una reazione (non ogni micro‑momento).", "voice": "🔊 Voce", "playful": "🙂 Strambo", "newPrompt": "Nuovo", "resetToday": "Reset oggi", "clearAll": "Cancella tutto", "hint1": "Serve a sostenere l’abituazione — non a controllare di più.", "hint2": "Consiglio: usalo quando senti una <span class=\"warn\">spirale / fastidio</span>, poi torna alla vita.", "footer": "I dati restano su questo dispositivo con <span class=\"mono\">localStorage</span>. Nulla viene caricato.", "progressTitle": "Progresso", "progressSub": "Statistiche leggere. Non fissarle tutto il giorno.", "lblToday": "Tap oggi", "lblAvg": "Media (ultimi 30 giorni)", "lblDays": "Giorni usato (30 giorni)", "lblGap": "Pausa più lunga senza tap oggi", "sparkHdr": "Ultimi 30 giorni (tap/giorno)", "sparkHint": "Il progresso spesso è: meno tap “urgenti”, pause più lunghe e meno tempo a pensarci — anche se il suono varia.", "progressFooter": "Routine “un’occhiata”: controlla le stats una volta la sera, non durante il giorno.", "language": "Lingua"}, "prompts": {"core": ["Un respiro lento… inspira… espira… (solo uno).", "Guarda 3 cose. Nominale.", "Senti i piedi. Premi le dita 3 secondi.", "Conta all’indietro da 20 a 12. Stop.", "Nomina 5 animali. Fatto.", "Nomina 4 cibi. Fatto.", "Nomina 3 posti dove sei stato. Fatto.", "Scansiona le spalle. Abbassale di 1 cm.", "Rilassa la mascella. Mini reset.", "Trova 2 cose rettangolari.", "Trova 1 cosa rotonda.", "Scegli un colore. Trova 3 oggetti.", "Disegna un cerchio perfetto nell’aria — lentamente.", "Immagina una ruota di bici: 5 giri. Conta.", "Pollice su ogni dito una volta (1–2–3–4).", "Conta 7 suoni intorno (non l’acufene).", "Descrivi la stanza come un documentario (1 frase).", "Fai solo i prossimi 30 secondi della tua attività.", "Rilassa la fronte. Come stirare una mini camicia.", "Allarga le dita… poi rilassa.", "Due piccole gratitudini. Valgono.", "Immagina una manopola volume. -10%… e via.", "Frase neutra: «È un suono, non una minaccia».", "Scegli un oggetto. Nota la texture 5 secondi.", "Un sorso d’acqua. Nota la temperatura.", "Conta 10 battiti di ciglia. Sì.", "Ripeti un ritornello (2 righe) una volta nella testa.", "Apri una porta immaginaria. Cosa c’è? 1 frase.", "Categoria (giochi/film/libri): 5 nomi e stop.", "Micro riordino: rimetti a posto 1 cosa.", "Invia un messaggio gentile (o bozza).", "Alzati. Siediti. Fine.", "Guarda lontano (finestra). Trova la cosa più distante.", "Timer 60 s: solo la tua attività.", "Sorriso leggero (anche finto va bene)."], "playful": ["Immagina un mini drago che fa 3 flessioni. Conta. 💪🐉", "Un’anatra con un cappellino. Di che colore?", "Un gatto furtivo… con scarpe che cigolano.", "Un goblin prepara il tè. Quale tazza sceglie?", "Modalità master: descrivi la stanza come una tessera dungeon.", "Missione: trova un ‘tesoro’ (una penna).", "Un mago lancia «Calma Leggera». Scintilla educatamente.", "Un cavaliere litiga con una porta. La porta vince. Avanti.", "Un orco educato dice “scusa” e apre un barattolo.", "Uno scoiattolo fa le tasse. Si stressa. Tu no.", "Colonna sonora epica… per piegare i panni.", "L’acufene = una radio in un’altra stanza. Lasciala lì.", "Nome mostro: «Sir Sbatacchia‑Molto». Fatto.", "Un drago fa yoga. Sorprendentemente flessibile.", "Il DM gnomo dice: «Tira per chill». Superato.", "Una lumaca con jetpack. Sempre lumaca.", "Il cervello archivia ‘acufene’ in ‘noioso’. *click*", "Incantesimo inventato: «Ignora‑ius Maximus».", "Un pinguino spiega il Bluetooth. Sicuro. Sbagliato.", "Un criceto al micro: «Prossima domanda!»", "Nuovo gioco: «Tappeto: La Resa dei Conti» (1 frase).", "Un cactus dà un abbraccio. Si pente.", "Il drago fa un’altra flessione. Ormai è convinto.", "Un gremlin lucida un’armatura. Ce la mette tutta.", "Giostra: «La Distrazione Gentile». Enjoy.", "Bacchetta magica… è una baguette.", "Un mini bardo canta: “non oggi”.", "Una rana con mantello. Crede in te.", "Un robot impara a strizzare l’occhio. Inquietante.", "Un goblin scrive poster: “Keep Calm‑ish”.", "Pensieri come popcorn: pop… e stop.", "Ultima flessione del drago e pensione felice."], "follow": ["Bene. Ora continua senza ricontrollare.", "Ottimo. Torna a quello che stavi facendo.", "Fatto. Lascialo lì e continua.", "Perfetto — attenzione fuori.", "Torna alla tua attività."]}, "ttsLang": "it-IT"}};
+
+const KEY = "tim_tinnitus_is_manageable_v3";
+function loadState(){ try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
+function saveState(s){ localStorage.setItem(KEY, JSON.stringify(s)); }
+
+function ymd(d){
+  const yy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${yy}-${mm}-${dd}`;
+}
+function getToday(){ return ymd(new Date()); }
+
+function ensureDay(state, dayKey){
+  if(!state.days) state.days = {};
+  if(!state.days[dayKey]) state.days[dayKey] = { taps:0, firstTapAt:null, lastTapAt:null, longestGapMs:0 };
+  return state.days[dayKey];
+}
+
+function lastNDaysKeys(n){
+  const keys = [];
+  const base = new Date();
+  for(let i=n-1; i>=0; i--){
+    const d = new Date(base);
+    d.setDate(base.getDate()-i);
+    keys.push(ymd(d));
+  }
+  return keys;
+}
+
+function msToNice(ms){
+  if(!ms || ms < 1000) return "—";
+  const mins = Math.floor(ms/60000);
+  const hrs = Math.floor(mins/60);
+  const rMins = mins % 60;
+  if(hrs <= 0) return mins + "m";
+  return hrs + "h " + rMins + "m";
+}
+
+function getLang(){
+  const s = loadState();
+  const lang = (s.lang && I18N[s.lang]) ? s.lang : "en";
+  return lang;
+}
+function setLang(lang){
+  const s = loadState();
+  s.lang = (I18N[lang] ? lang : "en");
+  saveState(s);
+}
+
+function pickPrompt(lang, playfulOn){
+  const pack = I18N[lang] || I18N.en;
+  const core = pack.prompts.core;
+  const playful = pack.prompts.playful;
+  const follow = pack.prompts.follow;
+
+  const bank = playfulOn ? core.concat(playful) : core.slice();
+  const main = bank[Math.floor(Math.random()*bank.length)];
+  const tail = follow[Math.floor(Math.random()*follow.length)];
+  return main + " " + tail;
+}
+
+function speak(text, lang){
+  if(!("speechSynthesis" in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.0; u.pitch = 1.0;
+    u.lang = (I18N[lang] && I18N[lang].ttsLang) ? I18N[lang].ttsLang : "en-GB";
+    window.speechSynthesis.speak(u);
+  } catch(e){ /* ignore */ }
+}
+
+function recordTap(){
+  const state = loadState();
+  const t = getToday();
+  const day = ensureDay(state, t);
+  const now = Date.now();
+
+  day.taps = (day.taps || 0) + 1;
+  if(!day.firstTapAt) day.firstTapAt = now;
+  if(day.lastTapAt){
+    const gap = now - day.lastTapAt;
+    if(gap > (day.longestGapMs || 0)) day.longestGapMs = gap;
+  }
+  day.lastTapAt = now;
+
+  saveState(state);
+}
+
+function computeStats(){
+  const state = loadState();
+  const todayKey = getToday();
+  const today = ensureDay(state, todayKey);
+
+  const keys30 = lastNDaysKeys(30);
+  const vals = keys30.map(k => (state.days && state.days[k] ? (state.days[k].taps||0) : 0));
+
+  const total = vals.reduce((a,b)=>a+b,0);
+  const daysUsed = vals.filter(v => v>0).length;
+  const avg = total / 30;
+
+  const last7 = vals.slice(23).reduce((a,b)=>a+b,0) / 7;
+  const prev7 = vals.slice(16,23).reduce((a,b)=>a+b,0) / 7;
+  let trend = "—";
+  if(prev7 > 0 || last7 > 0){
+    const delta = last7 - prev7;
+    const sign = delta > 0 ? "+" : "";
+    trend = `${sign}${delta.toFixed(1)} /day`;
+  }
+
+  saveState(state);
+  return { today: today.taps||0, bestGapMs: today.longestGapMs||0, avg30: avg, daysUsed, vals, trend };
+}
+
+function renderSpark(vals){
+  const w = 300, h = 80, pad = 6;
+  const max = Math.max(1, ...vals);
+  const min = 0;
+  const dx = (w - pad*2) / (vals.length - 1);
+  const pts = vals.map((v,i)=>{
+    const x = pad + i*dx;
+    const y = (h - pad) - ((v - min) / (max - min)) * (h - pad*2);
+    return [x,y];
+  });
+  let d = "";
+  pts.forEach((p,i)=>{ d += (i===0 ? "M" : " L") + p[0].toFixed(2) + " " + p[1].toFixed(2); });
+  document.getElementById("sparkPath").setAttribute("d", d);
+}
+
+function applyUI(lang){
+  const ui = (I18N[lang] && I18N[lang].ui) ? I18N[lang].ui : I18N.en.ui;
+
+  document.documentElement.setAttribute("lang", lang);
+
+  // Titles / headers
+  document.getElementById("pageTitle").textContent = ui.pageTitle;
+  document.getElementById("headlineStrong").textContent = ui.headlineStrong;
+  document.getElementById("headlineRest").textContent = ui.headlineRest;
+  document.getElementById("tagline").textContent = ui.tagline;
+  document.getElementById("tapLabel").textContent = ui.tapLabel;
+  document.getElementById("readyText").textContent = ui.readyText;
+
+  // Toggles
+  document.querySelector("label[for]").textContent = document.querySelector("label[for]")?.textContent || "";
+  document.getElementById("newPromptLabel").textContent = ui.newPrompt;
+  document.getElementById("resetTodayLabel").textContent = ui.resetToday;
+  document.getElementById("clearAllLabel").textContent = ui.clearAll;
+  document.getElementById("langLabel").textContent = ui.language;
+
+  document.querySelector('label[title^="Speak"]')?.querySelector("span");
+  const voicePill = document.querySelector('label[title*="Speak"]');
+  if(voicePill) {
+    voicePill.lastChild.textContent = "";
+    voicePill.childNodes.forEach(n=>{ if(n.nodeType===3) n.textContent=""; });
+    // keep checkbox + emoji, then add text
+    const txt = voicePill.querySelector(".pillTextVoice") || document.createElement("span");
+    txt.className = "pillTextVoice";
+    txt.style.color = "var(--muted)";
+    txt.style.fontSize = "13px";
+    txt.textContent = ui.voice;
+    voicePill.appendChild(txt);
+  }
+
+  const playfulPill = document.querySelector('label[title*="playful"]') || document.querySelectorAll(".toggle.pill")[1];
+  if(playfulPill) {
+    playfulPill.childNodes.forEach(n=>{ if(n.nodeType===3) n.textContent=""; });
+    const txt = playfulPill.querySelector(".pillTextPlay") || document.createElement("span");
+    txt.className = "pillTextPlay";
+    txt.style.color = "var(--muted)";
+    txt.style.fontSize = "13px";
+    txt.textContent = ui.playful;
+    playfulPill.appendChild(txt);
+  }
+
+  // Hints / footers
+  document.getElementById("hintLine1").textContent = ui.hint1;
+  document.getElementById("hintLine2").innerHTML = ui.hint2;
+  document.getElementById("footerLine").innerHTML = ui.footer;
+
+  // Progress panel
+  document.getElementById("progressTitle").textContent = ui.progressTitle;
+  document.getElementById("progressSub").textContent = ui.progressSub;
+  document.getElementById("lblToday").textContent = ui.lblToday;
+  document.getElementById("lblAvg").textContent = ui.lblAvg;
+  document.getElementById("lblDays").textContent = ui.lblDays;
+  document.getElementById("lblGap").textContent = ui.lblGap;
+  document.getElementById("sparkHdrLabel").textContent = ui.sparkHdr;
+  document.getElementById("sparkHint").textContent = ui.sparkHint;
+  document.getElementById("progressFooter").textContent = ui.progressFooter;
+
+  // Language selector label text is set above; options stay as-is.
+}
+
+function renderAll(){
+  const lang = getLang();
+  applyUI(lang);
+
+  const s = computeStats();
+  document.getElementById("todayNum").textContent = s.today;
+  document.getElementById("avg30Num").textContent = s.avg30.toFixed(1);
+  document.getElementById("daysUsedNum").textContent = s.daysUsed;
+  document.getElementById("bestGapNum").textContent = msToNice(s.bestGapMs);
+  document.getElementById("trendTxt").textContent = "trend: " + s.trend;
+  renderSpark(s.vals);
+}
+
+const voiceToggle = document.getElementById("voiceToggle");
+const playfulToggle = document.getElementById("playfulToggle");
+const elPrompt = document.getElementById("prompt");
+const langSelect = document.getElementById("langSelect");
+
+function setPrompt(text){ elPrompt.textContent = text; }
+
+document.getElementById("bigButton").addEventListener("click", () => {
+  recordTap();
+  const lang = getLang();
+  const text = pickPrompt(lang, playfulToggle.checked);
+  setPrompt(text);
+  if(voiceToggle.checked) speak(text, lang);
+  renderAll();
+});
+
+document.getElementById("newPrompt").addEventListener("click", () => {
+  const lang = getLang();
+  const text = pickPrompt(lang, playfulToggle.checked);
+  setPrompt(text);
+  if(voiceToggle.checked) speak(text, lang);
+});
+
+document.getElementById("resetToday").addEventListener("click", () => {
+  const state = loadState();
+  const t = getToday();
+  if(state.days && state.days[t]) state.days[t] = { taps:0, firstTapAt:null, lastTapAt:null, longestGapMs:0 };
+  saveState(state);
+  const ui = I18N[getLang()].ui || I18N.en.ui;
+  setPrompt(ui.readyText);
+  renderAll();
+});
+
+document.getElementById("clearAll").addEventListener("click", () => {
+  localStorage.removeItem(KEY);
+  const lang = "en";
+  setLang(lang);
+  if(langSelect) langSelect.value = lang;
+  const ui = I18N[lang].ui;
+  setPrompt(ui.readyText);
+  renderAll();
+});
+
+if(langSelect){
+  const cur = getLang();
+  langSelect.value = cur;
+  langSelect.addEventListener("change", (e) => {
+    const next = e.target.value;
+    setLang(next);
+    const text = pickPrompt(next, playfulToggle.checked);
+    setPrompt(text);
+    if(voiceToggle.checked) speak(text, next);
+    renderAll();
+  });
+}
+
+// First render
+renderAll();
+</script>
+</body>
