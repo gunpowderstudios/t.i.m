@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>T.I.M — Tinnitus Is Manageable</title>
+  <meta name="description" content="T.I.M — a simple refocus button to support tinnitus habituation. Offline, private, and lightweight." />
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#121826; --text:#e8eef7; --muted:#9fb0c7;
+      --accent:#e11d48; --accent2:#be123c; --good:#22c55e; --line:rgba(255,255,255,.09);
+    }
+    *{ box-sizing:border-box; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; }
+    body{
+      margin:0; color:var(--text);
+      background: radial-gradient(1200px 800px at 50% -10%, #1b2a46 0%, var(--bg) 55%);
+      min-height:100vh; display:flex; align-items:center; justify-content:center; padding:18px;
+    }
+    .wrap{ width:min(1020px, 100%); display:grid; gap:16px; grid-template-columns: 1.15fr 0.85fr; }
+    @media (max-width: 920px){ .wrap{ grid-template-columns:1fr; } }
+    .card{
+      background:rgba(18,24,38,.92); border:1px solid var(--line);
+      border-radius:18px; padding:18px; box-shadow: 0 12px 40px rgba(0,0,0,.35);
+    }
+    h1{ margin:0 0 6px; font-size:22px; letter-spacing:.2px; }
+    .sub{ margin:0 0 14px; color:var(--muted); font-size:14px; line-height:1.4; }
+    .titleRow{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .tag{ padding:6px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted); font-size:12px; }
+    .button{
+      width:100%; aspect-ratio: 2.0/1; border-radius:26px; border:0; cursor:pointer;
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent2) 100%);
+      box-shadow: 0 12px 0 rgba(0,0,0,.25), 0 28px 60px rgba(225,29,72,.20);
+      color:white; font-size:28px; font-weight:850; letter-spacing:.4px;
+      display:flex; align-items:center; justify-content:center; gap:10px; user-select:none;
+    }
+    .button:active{ transform: translateY(6px); box-shadow: 0 6px 0 rgba(0,0,0,.25), 0 16px 40px rgba(225,29,72,.15); }
+    .prompt{
+      margin-top:14px; padding:14px; border-radius:14px;
+      background: rgba(255,255,255,.06); border:1px solid var(--line);
+      min-height:92px; display:flex; align-items:center;
+      font-size:18px; line-height:1.35;
+    }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
+    .pill{
+      padding:8px 10px; border-radius:999px; background: rgba(255,255,255,.06);
+      border:1px solid var(--line); color:var(--muted); font-size:13px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .toggle{ display:flex; gap:8px; align-items:center; cursor:pointer; user-select:none; }
+    input[type="checkbox"]{ width:18px; height:18px; }
+    .smallbtn{
+      border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06);
+      color:var(--text); padding:9px 12px; border-radius:12px; cursor:pointer; font-weight:700;
+    }
+    .smallbtn:hover{ background: rgba(255,255,255,.09); }
+    .kpi{ display:grid; gap:10px; grid-template-columns:1fr 1fr; }
+    .box{ padding:12px; border-radius:14px; background: rgba(255,255,255,.06); border:1px solid var(--line); }
+    .num{ font-size:22px; font-weight:900; margin:0; }
+    .lbl{ margin:2px 0 0; color:var(--muted); font-size:12px; line-height:1.2; }
+    .hint{ margin-top:12px; color:var(--muted); font-size:13px; line-height:1.45; }
+    .ok{ color:var(--good); font-weight:800; }
+    .footer{ margin-top:10px; color:var(--muted); font-size:12px; line-height:1.35; }
+    .sparkWrap{ margin-top:10px; padding:10px; border-radius:14px; background: rgba(255,255,255,.04); border:1px dashed rgba(255,255,255,.14); }
+    .sparkHdr{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .warn{ color:#fb7185; font-weight:750; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card">
+      <div class="titleRow">
+        <div>
+          <h1>T.I.M</h1>
+          <p class="sub"><span class="ok">Tinnitus Is Manageable.</span> Press when you notice yourself reacting. Do the prompt, then carry on.</p>
+        </div>
+        <div class="tag">Private • Offline • No accounts</div>
+      </div>
+
+      <button id="bigButton" class="button" aria-label="Tap T.I.M">
+        🔴 Tap T.I.M
+      </button>
+
+      <div id="prompt" class="prompt">
+        Ready. Tap when you notice a reaction (not every tiny moment).
+      </div>
+
+      <div class="row">
+        <label class="toggle pill" title="Speak the prompt out loud (may require a tap once first on mobile).">
+          <input id="voiceToggle" type="checkbox" />
+          🔊 Voice
+        </label>
+
+        <label class="toggle pill" title="A little more playful prompts (often helps reduce threat).">
+          <input id="playfulToggle" type="checkbox" checked />
+          🙂 Playful
+        </label>
+
+        <button id="newPrompt" class="smallbtn" type="button">New prompt</button>
+        <button id="resetToday" class="smallbtn" type="button" title="Clears today's count only.">Reset today</button>
+        <button id="clearAll" class="smallbtn" type="button" title="Clears all stored data on this device.">Clear all</button>
+      </div>
+
+      <p class="hint">
+        This is meant to support habituation — not create more monitoring.
+        Best practice: use it when you notice a <span class="warn">spiral / annoyance</span>, then return to life.
+      </p>
+
+      <div class="footer">
+        Data stays on this device using <span class="mono">localStorage</span>. Nothing is uploaded anywhere.
+      </div>
+    </section>
+
+    <aside class="card">
+      <h1>Progress</h1>
+      <p class="sub">Gentle stats. Try not to stare at them all day.</p>
+
+      <div class="kpi">
+        <div class="box">
+          <p id="todayNum" class="num">0</p>
+          <p class="lbl">Taps today</p>
+        </div>
+        <div class="box">
+          <p id="avg30Num" class="num">0</p>
+          <p class="lbl">Average taps (last 30 days)</p>
+        </div>
+        <div class="box">
+          <p id="daysUsedNum" class="num">0</p>
+          <p class="lbl">Days used (last 30 days)</p>
+        </div>
+        <div class="box">
+          <p id="bestGapNum" class="num">—</p>
+          <p class="lbl">Longest “no tap” gap today</p>
+        </div>
+      </div>
+
+      <div class="sparkWrap">
+        <div class="sparkHdr">
+          <div class="sub" style="margin:0">Last 30 days (taps/day)</div>
+          <div id="trendTxt" class="tag mono">trend: —</div>
+        </div>
+        <svg id="spark" viewBox="0 0 300 80" width="100%" height="80" aria-label="Last 30 days sparkline">
+          <path id="sparkPath" d="" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2" />
+          <path id="sparkBase" d="M0 79 H300" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1" />
+        </svg>
+        <div class="hint" style="margin-top:8px">
+          Progress usually looks like: fewer “urgent” taps, longer gaps, and less time thinking about it — even if the sound itself varies.
+        </div>
+      </div>
+
+      <div class="footer">
+        If you want a daily “one look” routine: check stats once in the evening, not during the day.
+      </div>
+    </aside>
+  </div>
+
+<script>
+const promptsCore = [
+  "Picture a bicycle wheel turning exactly 5 times. Count each rotation.",
+  "Name 3 blue things you’ve seen recently.",
+  "Imagine drawing a perfect circle in the air — slowly.",
+  "Count backwards from 20 to 12. Stop.",
+  "Visualise opening a door. What’s behind it? Describe it briefly.",
+  "Pick a category (animals, foods, places). Name 5 quickly, then stop.",
+  "Notice 2 physical sensations (feet, chair, clothing).",
+  "Imagine tossing a ball left to right 6 times. Count. Done.",
+  "Think of a song chorus (just 2 lines) and play it once in your head.",
+  "Take one slow breath in… and out…"
+];
+
+const promptsPlayful = [
+  "Imagine a duck wearing a tiny hat. What colour is the hat?",
+  "Picture a tiny dragon doing 3 push-ups. (Yes, really.)",
+  "Imagine a friendly goblin making tea. Which mug does it choose?",
+  "Pretend you’re a game master: describe this room as a dungeon tile.",
+  "Visualise a cat sneaking past… but it’s wearing squeaky shoes."
+];
+
+const followUps = [
+  "Nice. Now carry on without checking again.",
+  "Good. Back to what you were doing.",
+  "Done. Let it be there and continue.",
+  "Great — attention outward again.",
+  "Return to your activity."
+];
+
+const KEY = "tim_tinnitus_is_manageable_v2";
+
+function ymd(d){
+  const yy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${yy}-${mm}-${dd}`;
+}
+
+function loadState(){
+  try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
+  catch { return {}; }
+}
+
+function saveState(s){
+  localStorage.setItem(KEY, JSON.stringify(s));
+}
+
+function getToday(){
+  return ymd(new Date());
+}
+
+function ensureDay(state, dayKey){
+  if(!state.days) state.days = {};
+  if(!state.days[dayKey]){
+    state.days[dayKey] = { taps:0, firstTapAt:null, lastTapAt:null, longestGapMs:0 };
+  }
+  return state.days[dayKey];
+}
+
+const elPrompt = document.getElementById("prompt");
+const todayNum = document.getElementById("todayNum");
+const avg30Num = document.getElementById("avg30Num");
+const daysUsedNum = document.getElementById("daysUsedNum");
+const bestGapNum = document.getElementById("bestGapNum");
+const trendTxt = document.getElementById("trendTxt");
+const sparkPath = document.getElementById("sparkPath");
+const voiceToggle = document.getElementById("voiceToggle");
+const playfulToggle = document.getElementById("playfulToggle");
+
+function msToNice(ms){
+  if(!ms || ms < 1000) return "—";
+  const mins = Math.floor(ms/60000);
+  const hrs = Math.floor(mins/60);
+  const rMins = mins % 60;
+  if(hrs <= 0) return mins + "m";
+  return hrs + "h " + rMins + "m";
+}
+
+function pickPrompt(){
+  const usePlayful = playfulToggle.checked;
+  const bank = usePlayful ? promptsCore.concat(promptsPlayful) : promptsCore.slice();
+  const main = bank[Math.floor(Math.random()*bank.length)];
+  const tail = followUps[Math.floor(Math.random()*followUps.length)];
+  return main + " " + tail;
+}
+
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 1.0; u.pitch = 1.0;
+  window.speechSynthesis.speak(u);
+}
+
+function recordTap(){
+  const state = loadState();
+  const t = getToday();
+  const day = ensureDay(state, t);
+  const now = Date.now();
+
+  day.taps = (day.taps || 0) + 1;
+  if(!day.firstTapAt) day.firstTapAt = now;
+
+  if(day.lastTapAt){
+    const gap = now - day.lastTapAt;
+    if(gap > (day.longestGapMs || 0)) day.longestGapMs = gap;
+  }
+  day.lastTapAt = now;
+
+  saveState(state);
+}
+
+function lastNDaysKeys(n){
+  const keys = [];
+  const base = new Date();
+  for(let i=n-1; i>=0; i--){
+    const d = new Date(base);
+    d.setDate(base.getDate()-i);
+    keys.push(ymd(d));
+  }
+  return keys;
+}
+
+function computeStats(){
+  const state = loadState();
+  const todayKey = getToday();
+  const today = ensureDay(state, todayKey);
+
+  const keys30 = lastNDaysKeys(30);
+  const vals = keys30.map(k => (state.days && state.days[k] ? (state.days[k].taps||0) : 0));
+
+  const total = vals.reduce((a,b)=>a+b,0);
+  const daysUsed = vals.filter(v => v>0).length;
+  const avg = total / 30;
+
+  const last7 = vals.slice(23).reduce((a,b)=>a+b,0) / 7;
+  const prev7 = vals.slice(16,23).reduce((a,b)=>a+b,0) / 7;
+  let trend = "—";
+  if(prev7 > 0 || last7 > 0){
+    const delta = last7 - prev7;
+    const sign = delta > 0 ? "+" : "";
+    trend = `${sign}${delta.toFixed(1)} /day`;
+  }
+
+  saveState(state);
+  return { today: today.taps||0, bestGapMs: today.longestGapMs||0, avg30: avg, daysUsed, vals, trend };
+}
+
+function renderSpark(vals){
+  const w = 300, h = 80, pad = 6;
+  const max = Math.max(1, ...vals);
+  const min = 0;
+  const dx = (w - pad*2) / (vals.length - 1);
+
+  const pts = vals.map((v,i)=>{
+    const x = pad + i*dx;
+    const y = (h - pad) - ((v - min) / (max - min)) * (h - pad*2);
+    return [x,y];
+  });
+
+  let d = "";
+  pts.forEach((p,i)=>{ d += (i===0 ? "M" : " L") + p[0].toFixed(2) + " " + p[1].toFixed(2); });
+  sparkPath.setAttribute("d", d);
+}
+
+function render(){
+  const s = computeStats();
+  todayNum.textContent = s.today;
+  avg30Num.textContent = s.avg30.toFixed(1);
+  daysUsedNum.textContent = s.daysUsed;
+  bestGapNum.textContent = msToNice(s.bestGapMs);
+  trendTxt.textContent = "trend: " + s.trend;
+  renderSpark(s.vals);
+}
+
+document.getElementById("bigButton").addEventListener("click", () => {
+  recordTap();
+  const text = pickPrompt();
+  elPrompt.textContent = text;
+  if(voiceToggle.checked) speak(text);
+  render();
+});
+
+document.getElementById("newPrompt").addEventListener("click", () => {
+  const text = pickPrompt();
+  elPrompt.textContent = text;
+  if(voiceToggle.checked) speak(text);
+});
+
+document.getElementById("resetToday").addEventListener("click", () => {
+  const state = loadState();
+  const t = getToday();
+  if(state.days && state.days[t]) state.days[t] = { taps:0, firstTapAt:null, lastTapAt:null, longestGapMs:0 };
+  saveState(state);
+  elPrompt.textContent = "Reset done. Tap T.I.M when you notice yourself reacting.";
+  render();
+});
+
+document.getElementById("clearAll").addEventListener("click", () => {
+  localStorage.removeItem(KEY);
+  elPrompt.textContent = "All data cleared on this device. Ready.";
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
